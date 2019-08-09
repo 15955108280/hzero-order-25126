@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.order.infra.mapper.SoLineMapper">
+  <!--  <resultMap id="soLineMap" type="org.hzero.order.domain.entity.SoLine">
+        <association property="soHeader" column="so_header_id" select="org.hzero.order.infra.mapper.SoHeaderMapper.selectSoHeaderById"></association>
+    </resultMap>-->
+    <select id="querySoLine" parameterType="java.lang.Long" resultType="org.hzero.order.domain.entity.SoLine">
+        SELECT l.so_line_id, l.so_header_id, l.line_number, l.item_id,l.order_quantity_uom,l.unit_selling_price,
+                 i.item_code,i.item_description
+        FROM hodr_so_line l,hodr_item i
+        WHERE l.item_id = i.item_id AND so_header_id = #{id}
+    </select>
+    <select id="selectByHeaderId" parameterType="java.lang.Long" resultType="org.hzero.order.domain.entity.SoLine">
+        SELECT  l.line_number, l.item_id,i.item_description,i.item_uom,l.order_quantity,l.unit_selling_price,l.addition1,l.addition2,l.addition3,l.addition4,l.addition5
+        FROM hodr_item i,hodr_so_line l
+        WHERE i.item_id = l.item_id AND so_header_id = #{id}
+    </select>
+    <select id="selectMaxLineNumber" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select max(line_number) from hodr_so_line where so_header_id = #{id};
+    </select>
+    <update id="updateSoLine" parameterType="org.hzero.order.domain.entity.SoLine">
+        update hodr_so_line
+        <trim prefix="set" suffixOverrides=",">
+        <if test="orderQuantity != null  ">
+        order_quantity = #{orderQuantity},
+        </if>
+        <if test="itemId != null  ">
+        item_id = #{itemId},
+        </if>
+        <if test="unitSellingPrice != null   ">
+        unit_selling_price = #{unitSellingPrice},
+        </if>
+        <if test="description != null  or description != '' ">
+        description = #{description},
+        </if>
+        <if test="addition1 != null  or addition1 != '' ">
+        addition1 = #{addition1},
+        </if>
+        <if test="addition2 != null  or addition2 != '' ">
+        addition2 = #{addition2},
+        </if>
+        <if test="addition3 != null  or addition3 != '' ">
+        addition3 = #{addition3},
+        </if>
+        <if test="addition4 != null  or addition4 != '' ">
+        addition4 = #{addition4},
+        </if>
+        <if test="addition5 != null  or addition5 != '' ">
+        addition5 = #{addition5},
+        </if>
+        </trim>
+        where so_line_id = #{soLineId}
+    </update>
+    <insert id="createSoLineList" parameterType="java.util.List">
+        insert into hodr_so_line (so_header_id,line_number,item_id,order_quantity,order_quantity_uom,unit_selling_price,description,addition1,addition2,addition3,addition4,addition5)
+        values
+        <foreach collection="soLineList" item="item" index="index" separator=",">
+            (
+            #{item.soHeaderId},
+            #{item.lineNumber},
+            #{item.itemId},
+            #{item.orderQuantity},
+            #{item.orderQuantityUom},
+            #{item.unitSellingPrice},
+            #{item.description},
+            #{item.addition1},
+            #{item.addition2},
+            #{item.addition3},
+            #{item.addition4},
+            #{item.addition5}
+            )
+        </foreach>
+    </insert>
+    <delete id="deleteByHeaderId" parameterType="java.lang.Long">
+        delete from hodr_so_line where so_header_id = #{id}
+    </delete>
+</mapper>
+

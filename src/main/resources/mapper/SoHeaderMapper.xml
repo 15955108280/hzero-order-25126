@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.order.infra.mapper.SoHeaderMapper">
+
+   <select id="selectSoHeaderById" parameterType="java.lang.Long" resultType="org.hzero.order.domain.entity.SoHeader">
+      select so_header_id,order_number,company_id,order_date,order_status,customer_id from hodr_sp_header
+   </select>
+
+   <select id="selectOrderStatusByPrimarKey" parameterType="java.lang.Long" resultType="java.lang.String">
+      select order_status from hodr_so_header where so_header_id = #{soHeaderId}
+   </select>
+
+   <update id="updateSoHeader" parameterType="org.hzero.order.domain.entity.SoHeader">
+      update hodr_so_header set
+      <if test="companyId != null">
+      company_id = #{companyId},
+      </if>
+      <if test="orderDate != null">
+      order_date = #{orderDate},
+      </if>
+      <if test="customerId != null">
+      customer_id = #{customerId},
+      </if>
+   </update>
+
+   <update id="submitSoHeader" parameterType="java.lang.Long">
+      update hodr_so_header set order_status = 'SUBMIT' where so_header_id = #{id}
+   </update>
+
+   <update id="approveSoHeader" parameterType="java.lang.Long">
+      update hodr_so_header set order_status = 'APPROVED' where so_header_id = #{id}
+   </update>
+
+   <update id="rejectSoHeader" parameterType="java.lang.Long">
+      update hodr_so_header set order_status = 'REJECTED' where so_header_id = #{id}
+   </update>
+   <update id="closeSoHeader" >
+      update hodr_so_header set order_status = 'CLOSED' where order_status = 'APPROVED'
+   </update>
+   <insert id="createSoHeaderWithId"  useGeneratedKeys="true" keyProperty="soHeaderId" parameterType="org.hzero.order.domain.entity.SoHeader" >
+      insert into hodr_so_header (order_number,company_id,order_date,order_status,customer_id)
+      values (#{orderNumber},#{companyId},#{orderDate},#{orderStatus},#{customerId})
+   </insert>
+</mapper>
